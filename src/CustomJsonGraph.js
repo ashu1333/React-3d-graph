@@ -38,6 +38,10 @@ export default function CustomJsonGraph() {
   const fgRef = useRef(null);
 
   const [status, setStatus] = useState(false);
+  const [show_sidebar, showSidebar] = useState(false); //sidebar state
+  const [workflow_type, setWorkflow_type] = useState(""); //type of state
+  const [singleNodeData, setsingleNodeData] = useState(null); //single node data for sidebar component
+
   const [check, setCheck] = useState(false);
   const [highlightNodes, setHighlightNodes] = useState(new Set());
   const [highlightLinks, setHighlightLinks] = useState(new Set());
@@ -47,6 +51,8 @@ export default function CustomJsonGraph() {
   const [first_filter, setFirstFilter] = useState("");
   const [selected, setSelected] = useState("");
   const [selected1, setSelected1] = useState("");
+  const [selected2, setSelected2] = useState("");
+  const [selected3, setSelected3] = useState("");
 
   const Links_State = (links, nodes) => {
     setLinksGlobal(links);
@@ -96,7 +102,7 @@ export default function CustomJsonGraph() {
     //   data.links = linksGlobal;
     let links_new = [];
     // FOR CREATING LINK____________________
-
+//data.links = linksGlobal;
     if (first_filter !== "Workflow") {
       //data.links = [];
       // data.links.push(linksGlobal);
@@ -115,7 +121,7 @@ export default function CustomJsonGraph() {
     data.links = [];
     data.links.push(...links_new);
 
-    console.log("new data=>", data);
+    //  console.log("new data=>", data);
 
     // setGData(data || null);
     setHoverNode(node || null);
@@ -131,8 +137,8 @@ export default function CustomJsonGraph() {
 
   const filter_graph_by_status = (node_status) => {
     //data.nodes=nodesGlobal;
-console.log("handleStatus");
-console.log(first_filter);
+    console.log("handleStatus");
+    console.log(first_filter);
     if (first_filter === "Status") {
       console.log("Filter from Global");
       data.nodes = [];
@@ -295,12 +301,38 @@ console.log(first_filter);
     updateHighlight();
   };
 
-  const handleClick = (node) => {
-    setFirstFilter("Workflow");
-    setCheck((check) => check);
+  const handleNodeClick = (node) => {
+    showSidebar(false);
+    setsingleNodeData(node);
+    if(node.hasOwnProperty("Name")){
+      if(node.Name === "InsuranceGig"){
+        setWorkflow_type("InsuranceGig");
+      }else{
+        setWorkflow_type("workflow")
+      }
+    }else{
+      setWorkflow_type("buyer_seller");
+    }
   
+    showSidebar(true);
 
-    console.log("data=>", data);
+    console.log("jsngrpah", node);
+
+    const distance = 40;
+    const distRatio = 5 + distance / Math.hypot(node.x);
+
+    fgRef.current.cameraPosition(
+      { x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio }, // new position
+      node, // lookAt ({ x, y, z })
+      2000 // ms transition duration
+    );
+  };
+  const handleClick = (node) => {
+    setCheck((check) => check);
+    setFirstFilter("Workflow");
+
+    setCheck((check) => check);
+    console.log({ workflow_type });
 
     if (linksGlobal === null || nodesGlobal === null) {
       Links_State(data.links, data.nodes);
@@ -312,12 +344,8 @@ console.log(first_filter);
   };
 
   const handleByStatus = (status) => {
-  
     setFirstFilter("Status");
     setCheck((check) => check);
-   
-
-   
 
     if (linksGlobal === null || nodesGlobal === null) {
       Links_State(data.links, data.nodes);
@@ -363,7 +391,8 @@ console.log(first_filter);
             <div style={leftbar.slctDiv}>
               <select
                 style={leftbar.slct}
-                value={selected} onChange={(e) => setSelected(e.target.value)}
+                value={selected}
+                onChange={(e) => setSelected(e.target.value)}
                 onClick={(e) => {
                   if (parseInt(e.target.value) === parseInt(100)) {
                     setCheck((check) => !check);
@@ -425,26 +454,44 @@ console.log(first_filter);
               <br />
 
               <select
+                value={selected3}
+                onChange={(e) => setSelected3(e.target.value)}
                 style={leftbar.slct}
                 onClick={(e) => {
                   if (parseInt(e.target.value) === parseInt(100)) {
                     setCheck((check) => !check);
                     // window.location.reload(false);
-                  } else
-                    for (let i = 0; i < data.nodes.length; i++) {
-                      if (
-                        parseInt(e.target.value) === parseInt(data.nodes[i].id)
-                      ) {
-                        console.log("data to be set==>", data);
+                  } else{
+                    if (nodesGlobal !== null) {
+                      for (let i = 0; i < nodesGlobal.length; i++) {
+                        if (
+                          parseInt(e.target.value) ===
+                          parseInt(nodesGlobal[i].id)
+                        ) {
+                          console.log("data to be set==>", data);
 
-                        handleClick(data.nodes[i]);
+                          handleClick(nodesGlobal[i]);
+                        }
+                      }
+                    } else {
+                      for (let i = 0; i < data.nodes.length; i++) {
+                        if (
+                          parseInt(e.target.value) ===
+                          parseInt(data.nodes[i].id)
+                        ) {
+                          console.log("data to be set==>", data);
+
+                          handleClick(data.nodes[i]);
+                        }
                       }
                     }
+                  }
+                    
                 }}
               >
                 <option>Choose Buyer</option>
                 <option value="100">RESET</option>
-                {data.nodes.map((data) =>
+                {nodesGlobal && nodesGlobal.map((data) =>
                   data.hasOwnProperty("Buyer") ? (
                     <>
                       <option key={data.id} value={data.id}>
@@ -460,6 +507,8 @@ console.log(first_filter);
               <br />
 
               <select
+               value={selected2}
+               onChange={(e) => setSelected2(e.target.value)}
                 style={leftbar.slct}
                 onClick={(e) => {
                   if (parseInt(e.target.value) === parseInt(100)) {
@@ -470,7 +519,7 @@ console.log(first_filter);
                       if (
                         parseInt(e.target.value) === parseInt(data.nodes[i].id)
                       ) {
-                        console.log("data to be set==>", data);
+                       
 
                         handleClick(data.nodes[i]);
                       }
@@ -479,7 +528,7 @@ console.log(first_filter);
               >
                 <option>Choose Seller</option>
                 <option value="100">RESET</option>
-                {data.nodes.map((data) =>
+                {nodesGlobal && nodesGlobal.map((data) =>
                   data.hasOwnProperty("Seller") ? (
                     <>
                       <option key={data.id} value={data.id}>
@@ -495,7 +544,8 @@ console.log(first_filter);
               <br />
               <select
                 style={leftbar.slct}
-                value={selected1} onChange={(e) => setSelected1(e.target.value)}
+                value={selected1}
+                onChange={(e) => setSelected1(e.target.value)}
                 onClick={(e) => {
                   console.log(e.target.value);
                   if (parseInt(e.target.value) === parseInt(100)) {
@@ -532,6 +582,8 @@ console.log(first_filter);
                   setCheck((check) => !check);
                   setSelected("");
                   setSelected1("");
+                  setSelected2("");
+                  setSelected3("");
                 }}
               >
                 Reset
@@ -541,109 +593,110 @@ console.log(first_filter);
         </div>
         <div className="middlebar" style={indexs.middlebar}>
           <TopBar />
+   <ForceGraph3D
+  className="react-graph"
+  //nodeColor={node => node.id%2===0 ?"red" : "yellow"}
+  // nodeColor={(node) => generateName(node)}
+  ref={fgRef}
+  graphData={data}
+  // linkColor={() => "White"}
+  nodeAutoColorBy={(d) => d.id % GROUPS}
+  //  linkAutoColorBy={() => "white"}
+  linkOpacity={0.6}
+  linkAutoColorBy={(d) => data.nodes[d.source].id % GROUPS}
+  linkWidth={0.6}
+  //distRatio="10:4"
+  // nodeAutoColorBy="group"
+  // nodeRelSize={NODE_R}
+  autoPauseRedraw={false}
+  // linkWidth={(link) => (highlightLinks.has(link) ? 4 : 2)}
+  linkDirectionalParticles={4}
+  linkDirectionalParticleWidth={(link) =>
+    highlightLinks.has(link) ? 1 : 0
+  }
+  nodeLabel={(node) => {
+    if (node.hasOwnProperty("Workflow")) {
+      if (node.Name === "InsuranceGig") {
+        return `_________INSURANCE GIG________ <br/>
 
-          <ForceGraph3D
-            className="react-graph"
-            //nodeColor={node => node.id%2===0 ?"red" : "yellow"}
-            // nodeColor={(node) => generateName(node)}
-            ref={fgRef}
-            graphData={data}
-            // linkColor={() => "White"}
-            nodeAutoColorBy={(d) => d.id % GROUPS}
-            //  linkAutoColorBy={() => "white"}
-            linkOpacity={0.6}
-            linkAutoColorBy={(d) => data.nodes[d.source].id % GROUPS}
-            linkWidth={0.6}
-            //distRatio="10:4"
-            // nodeAutoColorBy="group"
-            // nodeRelSize={NODE_R}
-            autoPauseRedraw={false}
-            // linkWidth={(link) => (highlightLinks.has(link) ? 4 : 2)}
-            linkDirectionalParticles={4}
-            linkDirectionalParticleWidth={(link) =>
-              highlightLinks.has(link) ? 1 : 0
-            }
-            nodeLabel={(node) => {
-              if (node.hasOwnProperty("Workflow")) {
-                if (node.Name === "InsuranceGig") {
-                  return `_________INSURANCE GIG________ <br/>
-     
-       ${node.neighbors.map((n) => {
-         return `<br/>Worflow :
-           ${n.Name}`;
-       })} 
-       `;
-                }
-                return `Workflow : ${node.Name} 
-       <br/>
-       Status : ${node.Status}
-       ${node.neighbors.map((n) => {
-         return n.hasOwnProperty("Buyer")
-           ? `<br/>Buyer :
-           ${n.Buyer}`
-           : `<br/>Seller :
-            ${n.Seller}`;
-       })} 
-      `;
-              } else if (node.hasOwnProperty("Buyer")) {
-                return `<br/>This is ${
-                  node.Buyer
-                } , <br/> ${node.WorkflowImplementation.map((n) => {
-                  return `Buyer of ${n.Name} and status is ${n.Status} <br/>`;
-                })}`;
-              } else if (node.hasOwnProperty("Seller")) {
-                return `<br/>This is ${
-                  node.Seller
-                } , <br/> ${node.WorkflowImplementation.map((n) => {
-                  return `Seller of ${n.Name} and status is ${n.Status} <br/>`;
-                })}`;
-              }
-            }}
-            //nodeLabel ={node  => `<span>${node.id}</span>`}
-            nodeCanvasObject={paintRing}
-            nodeCanvasObjectMode={(node) =>
-              highlightNodes.has(node) ? "before" : undefined
-            }
-            onNodeHover={handleNodeHover}
-            onLinkHover={handleLinkHover}
-            // linkOpacity={(node) => {
-            //   if (node.hasOwnProperty("Name") && node.Name === "InsuranceGig") {
-            //     return 0;
-            //   } else {
-            //     return 0;
-            //   }
-            // }}
+${node.neighbors.map((n) => {
+return `<br/>Worflow :
+ ${n.Name}`;
+})} 
+`;
+      }
+      return `Workflow : ${node.Name} 
+<br/>
+Status : ${node.Status}
+${node.neighbors.map((n) => {
+return n.hasOwnProperty("Buyer")
+ ? `<br/>Buyer :
+ ${n.Buyer}`
+ : `<br/>Seller :
+  ${n.Seller}`;
+})} 
+`;
+    } else if (node.hasOwnProperty("Buyer")) {
+      return `<br/>This is ${
+        node.Buyer
+      } , <br/> ${node.WorkflowImplementation.map((n) => {
+        return `Buyer of ${n.Name} and status is ${n.Status} <br/>`;
+      })}`;
+    } else if (node.hasOwnProperty("Seller")) {
+      return `<br/>This is ${
+        node.Seller
+      } , <br/> ${node.WorkflowImplementation.map((n) => {
+        return `Seller of ${n.Name} and status is ${n.Status} <br/>`;
+      })}`;
+    }
+  }}
+  //nodeLabel ={node  => `<span>${node.id}</span>`}
+  nodeCanvasObject={paintRing}
+  nodeCanvasObjectMode={(node) =>
+    highlightNodes.has(node) ? "before" : undefined
+  }
+  onNodeHover={handleNodeHover}
+  onLinkHover={handleLinkHover}
+  // linkOpacity={(node) => {
+  //   if (node.hasOwnProperty("Name") && node.Name === "InsuranceGig") {
+  //     return 0;
+  //   } else {
+  //     return 0;
+  //   }
+  // }}
 
-            nodeVal={(node) => {
-              if (node.id < 6) {
-                if (node.hasOwnProperty("Name")) {
-                  if (node.Name === "InsuranceGig") {
-                    return 30;
-                  } else return 5;
-                }
-              } else {
-                return 0.5;
-              }
-            }}
-            linkDirectionalArrowLength={5.5}
-            // linkDirectionalArrowRelPos={1}
-            //  linkDirectionalParticles={5}
-            // linkDirectionalParticleWidth={2}
-            linkDirectionalParticleSpeed={(d) => 20 * 0.001}
-            linkDirectionalParticleColor="red"
-            // nodeThreeObject={(node) => {
-            //   if (node.hasOwnProperty("Name") && node.Name === "InsuranceGig") {
-            //     const imgTexture = new THREE.TextureLoader().load(logo);
-            //     const material = new THREE.SpriteMaterial({ map: imgTexture });
-            //     const sprite = new THREE.Sprite(material);
-            //     sprite.scale.set(30, 30);
+  nodeVal={(node) => {
+    if (node.id < 6) {
+      if (node.hasOwnProperty("Name")) {
+        if (node.Name === "InsuranceGig") {
+          return 30;
+        } else return 5;
+      }
+    } else {
+      return 0.5;
+    }
+  }}
+  linkDirectionalArrowLength={5.5}
+  // linkDirectionalArrowRelPos={1}
+  //  linkDirectionalParticles={5}
+  // linkDirectionalParticleWidth={2}
+  linkDirectionalParticleSpeed={(d) => 20 * 0.001}
+  linkDirectionalParticleColor="red"
+  // nodeThreeObject={(node) => {
+  //   if (node.hasOwnProperty("Name") && node.Name === "InsuranceGig") {
+  //     const imgTexture = new THREE.TextureLoader().load(logo);
+  //     const material = new THREE.SpriteMaterial({ map: imgTexture });
+  //     const sprite = new THREE.Sprite(material);
+  //     sprite.scale.set(30, 30);
 
-            //     return sprite;
-            //   }
-            // }}
-            onNodeClick={handleClick}
-          />
+  //     return sprite;
+  //   }
+  // }}
+  onNodeClick={handleNodeClick}
+/>
 
+
+        
           {!data.nodes.length && (
             <h2
               style={{
@@ -651,15 +704,16 @@ console.log(first_filter);
                 top: "50%",
                 left: "40%",
                 color: "white",
+                
               }}
             >
-              Not Result Found Pleasse Reset
+              No Result Found ! Please Reset
+            
             </h2>
           )}
         </div>
-
-        <SideBar />
       </div>
+      {show_sidebar && <SideBar node={singleNodeData} type={workflow_type} />}
     </>
 
     //</>//<ForceGraph3d
