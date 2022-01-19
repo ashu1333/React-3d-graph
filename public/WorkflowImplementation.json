@@ -1,0 +1,34 @@
+[
+    {
+      "Cinchy Id": 1,
+      "Name": "Heffernan<>Classification<>R6",
+      "Workflow": "Business NCCI Classification",
+      "Status": "Live",
+      "Description": "This is a classification workflow between Heffernan and Relativity 6",
+      "ThroughIGIG": "True"
+    },
+    {
+      "Cinchy Id": 2,
+      "Name": "Heffernan<>Classification<>NM",
+      "Workflow": "Business NCCI Classification",
+      "Status": "Introduced",
+      "Description": "This is a classification workflow between Heffernan and NM",
+      "ThroughIGIG": "True"
+    },
+    {
+      "Cinchy Id": 3,
+      "Name": "BTIS<>OCR",
+      "Workflow": "OCR-JSON",
+      "Status": "Testing",
+      "Description": "BTIS OCR",
+      "ThroughIGIG": "True"
+    },
+    {
+      "Cinchy Id": 4,
+      "Name": "HawkSoft<>BP",
+      "Workflow": "Submission Quoting",
+      "Status": "Testing",
+      "Description": "HawkSoft<>BP",
+      "ThroughIGIG": "True"
+    }
+  ]

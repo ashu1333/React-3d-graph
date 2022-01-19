@@ -1,0 +1,5 @@
+Cinchy Id,Name,Workflow,Status,Description,ThroughIGIG
+1,"Heffernan<>Classification<>R6","Business NCCI Classification","Live","This is a classification workflow between Heffernan and Relativity 6","True"
+2,"Heffernan<>Classification<>NM","Business NCCI Classification","Introduced","This is a classification workflow between Heffernan and NM","True"
+3,"BTIS<>OCR","OCR-JSON","Testing","BTIS OCR","True"
+4,"HawkSoft<>BP","Submission Quoting","Testing","HawkSoft<>BP","True"
