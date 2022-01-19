@@ -37,6 +37,9 @@ export default function CustomJsonGraph() {
   const fgRef = useRef(null);
   
   const[status,setStatus] = useState(false);
+  const[show_sidebar,showSidebar] = useState(false);//sidebar state
+  const[ workflow_type,setWorkflow_type ] = useState("");//type of state
+  const [singleNodeData, setsingleNodeData] = useState(null);//single node data for sidebar component
   const [check, setCheck] = useState(false);
   const [highlightNodes, setHighlightNodes] = useState(new Set());
   const [highlightLinks, setHighlightLinks] = useState(new Set());
@@ -85,7 +88,7 @@ export default function CustomJsonGraph() {
     data.links = [];
     data.links.push(...links_new);
 
-    console.log("new data=>", data);
+  //  console.log("new data=>", data);
 
     // setGData(data || null);
     setHoverNode(node || null);
@@ -250,11 +253,19 @@ export default function CustomJsonGraph() {
 
   const handleClick = (node) => {
   //  setNode(node);
-    console.log("node=>", node);
+  showSidebar(false);
+  setsingleNodeData(node);
+  console.log('jsngrpah',node);
+  
+  //check workflow or buyer/seller
+  node.hasOwnProperty("Name") ? setWorkflow_type("workflow") : setWorkflow_type("buyer_seller");
+  showSidebar(true);
+   // console.log("node=>", node);
     setCheck((check) => check);
-
-    console.log("data=>", data);
-
+    console.log({workflow_type});
+  //  console.log("data=>", data);
+   
+    // console.log({singleNodeData});
     if (linksGlobal === null || nodesGlobal === null) {
       Links_State(data.links, data.nodes);
     }
@@ -809,8 +820,7 @@ export default function CustomJsonGraph() {
   
 
       </div>
-      
-      <SideBar />
+      {show_sidebar && <SideBar node={singleNodeData} type={workflow_type}/>}
    
     </div>
     </>
